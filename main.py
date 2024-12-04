@@ -39,6 +39,7 @@ cancel_image = pg.image.load('assets/images/buttons/cancel.png').convert_alpha()
 upgrade_turret_image = pg.image.load('assets/images/buttons/upgrade_turret.png').convert_alpha()
 begin_image = pg.image.load('assets/images/buttons/begin.png').convert_alpha()
 restart_image = pg.image.load('assets/images/buttons/restart.png').convert_alpha()
+menu_bg = pg.image.load('assets/images/menu.jpeg').convert_alpha()
 
 # Cargar sonidos
 shot_fx = pg.mixer.Sound('assets/audio/laser.mp3')
@@ -173,6 +174,8 @@ def draw_menu():
       tuple: (bool, bool), el primer valor indica si se debe iniciar el juego, el segundo si se debe salir.
   """
   screen.fill((18, 18, 48))
+  menu_bg_resized = pg.transform.scale(menu_bg, (c.SCREEN_WIDTH + c.SIDE_PANEL, c.SCREEN_HEIGHT))
+  screen.blit(menu_bg_resized, (0, 0))
 
   # Dibujar botones
   start_game = start_button.draw(screen)
