@@ -54,11 +54,33 @@ large_font = pg.font.SysFont("Consolas", 36)
 
 # Función para mostrar texto en la pantalla
 def draw_text(text, font, text_col, x, y):
+  """
+  Dibuja un texto en la pantalla en las coordenadas especificadas.
+
+  Parámetros:
+  text (str): El texto que se va a dibujar.
+  font (pygame.font.Font): La fuente utilizada para renderizar el texto.
+  text_col (tuple): El color del texto en formato RGB.
+  x (int): La coordenada x donde se dibujará el texto.
+  y (int): La coordenada y donde se dibujará el texto.
+  """
   img = font.render(text, True, text_col)
   screen.blit(img, (x, y))
 
 # Función para mostrar datos en la pantalla
 def display_data():
+  """
+  Muestra los datos del juego en la pantalla lateral.
+
+  Dibuja un rectángulo de fondo y un borde en la pantalla lateral.
+  Luego, muestra el nivel actual, la salud y el dinero del jugador.
+
+  Parámetros:
+  No recibe parámetros.
+
+  Retorno:
+  No retorna ningún valor.
+  """
   pg.draw.rect(screen, "darkslategray", (c.SCREEN_WIDTH, 0, c.SIDE_PANEL, c.SCREEN_HEIGHT))
   pg.draw.rect(screen, "grey0", (c.SCREEN_WIDTH, 0, c.SIDE_PANEL, c.SCREEN_HEIGHT), 2)
   draw_text("Nivel: " + str(world.level), text_font, "grey100", c.SCREEN_WIDTH + 10, 10)
@@ -67,6 +89,15 @@ def display_data():
 
 # Función para crear una torreta
 def create_turret(mouse_pos):
+  """
+  Crea una torreta en la posición del ratón si el espacio está disponible y se cumplen las condiciones.
+
+  Args:
+    mouse_pos (tuple): Una tupla (x, y) que representa la posición del ratón en píxeles.
+
+  Returns:
+    None
+  """
   mouse_tile_x = mouse_pos[0] // c.TILE_SIZE
   mouse_tile_y = mouse_pos[1] // c.TILE_SIZE
   mouse_tile_num = (mouse_tile_y * c.COLS) + mouse_tile_x
@@ -79,6 +110,15 @@ def create_turret(mouse_pos):
 
 # Función para seleccionar una torreta
 def select_turret(mouse_pos):
+  """
+  Selecciona una torreta basada en la posición del ratón.
+
+  Args:
+    mouse_pos (tuple): Una tupla (x, y) que representa la posición del ratón en píxeles.
+
+  Returns:
+    Turret: La torreta que se encuentra en la posición del ratón, si existe. De lo contrario, devuelve None.
+  """
   mouse_tile_x = mouse_pos[0] // c.TILE_SIZE
   mouse_tile_y = mouse_pos[1] // c.TILE_SIZE
   for turret in turret_group:
@@ -87,6 +127,15 @@ def select_turret(mouse_pos):
 
 # Función para limpiar la selección de torretas
 def clear_selection():
+  """
+  Desmarca todas las torretas en el grupo de torretas.
+
+  Itera sobre cada torreta en el grupo de torretas y establece su atributo
+  'selected' a False, desmarcándolas.
+
+  Returns:
+    None
+  """
   for turret in turret_group:
     turret.selected = False
 

@@ -5,79 +5,143 @@ import constants as c
 from enemy_data import ENEMY_DATA
 
 class Enemy(pg.sprite.Sprite):
+    """
+    Clase para manejar enemigos en el juego.
+
+    Atributos:
+    ----------
+    enemy_type : str
+        Tipo de enemigo, usado para obtener datos específicos del enemigo.
+    waypoints : list[tuple]
+        Lista de puntos de control que el enemigo debe seguir.
+    pos : Vector2
+        Posición actual del enemigo.
+    target_waypoint : int
+        Índice del siguiente waypoint objetivo.
+    health : int
+        Salud actual del enemigo.
+    max_health : int
+        Salud máxima del enemigo.
+    speed : float
+        Velocidad de movimiento del enemigo.
+    angle : float
+        Ángulo de rotación actual del enemigo.
+    original_image : pygame.Surface
+        Imagen original sin rotación.
+    image : pygame.Surface
+        Imagen actual del enemigo, rotada según el ángulo.
+    rect : pygame.Rect
+        Rectángulo delimitador de la imagen actual.
+    """
+
     def __init__(self, enemy_type, waypoints, images):
-        pg.sprite.Sprite.__init__(self)
-        self.enemy_type = enemy_type  # Asignamos enemy_type
+        """
+        Inicializa un enemigo con un tipo, waypoints y una imagen.
+
+        Parámetros:
+        ----------
+        enemy_type : str
+            Tipo de enemigo, utilizado para definir salud, velocidad, etc.
+        waypoints : list[tuple]
+            Lista de coordenadas que el enemigo debe seguir.
+        images : dict
+            Diccionario que mapea tipos de enemigos con sus imágenes respectivas.
+        """
+        super().__init__()
+        self.enemy_type = enemy_type
         self.waypoints = waypoints
         self.pos = Vector2(self.waypoints[0])
         self.target_waypoint = 1
-        self.health = ENEMY_DATA.get(enemy_type)["health"]
-        self.max_health = self.health  # Salud máxima
-        self.speed = ENEMY_DATA.get(enemy_type)["speed"]
+        self.health = ENEMY_DATA[enemy_type]["health"]
+        self.max_health = self.health
+        self.speed = ENEMY_DATA[enemy_type]["speed"]
         self.angle = 0
-        self.original_image = images.get(enemy_type)
+        self.original_image = images[enemy_type]
         self.image = pg.transform.rotate(self.original_image, self.angle)
-        self.rect = self.image.get_rect()
-        self.rect.center = self.pos
+        self.rect = self.image.get_rect(center=self.pos)
 
     def update(self, world):
+        """
+        Actualiza el estado del enemigo en cada fotograma.
+
+        Parámetros:
+        ----------
+        world : World
+            Instancia del mundo del juego que contiene el estado global.
+        """
         self.move(world)
         self.rotate()
         self.check_alive(world)
 
     def move(self, world):
-        # Define un waypoint objetivo
+        """
+        Mueve al enemigo hacia el siguiente waypoint.
+
+        Parámetros:
+        ----------
+        world : World
+            Instancia del mundo del juego, utilizada para manejar la salud y velocidad.
+        """
         if self.target_waypoint < len(self.waypoints):
             self.target = Vector2(self.waypoints[self.target_waypoint])
             self.movement = self.target - self.pos
         else:
-            if not self.alive():  # Asegurarse de que solo decremente una vez
-                return
-            # El enemigo ha alcanzado el final del camino
-            self.kill()
-            world.health -= 1
-            world.missed_enemies += 1
+            # Alcanza el final del camino
+            if self.alive():
+                self.kill()
+                world.health -= 1
+                world.missed_enemies += 1
             return
 
-        # Calcula la distancia al objetivo
-        dist = self.movement.length()
-        if dist >= (self.speed * world.game_speed):
-            self.pos += self.movement.normalize() * (self.speed * world.game_speed)
+        distance = self.movement.length()
+        move_distance = self.speed * world.game_speed
+        if distance >= move_distance:
+            self.pos += self.movement.normalize() * move_distance
         else:
-            if dist != 0:
-                self.pos += self.movement.normalize() * dist
+            self.pos += self.movement.normalize() * distance
             self.target_waypoint += 1
 
     def rotate(self):
-        # Calcula la distancia al siguiente waypoint
+        """
+        Rota la imagen del enemigo hacia el siguiente waypoint.
+        """
         dist = self.target - self.pos
-        # Usa la distancia para calcular el ángulo
-        self.angle = math.degrees(math.atan2(-dist[1], dist[0]))
-        # Rota la imagen y actualiza el rectángulo
+        self.angle = math.degrees(math.atan2(-dist.y, dist.x))
         self.image = pg.transform.rotate(self.original_image, self.angle)
-        self.rect = self.image.get_rect()
-        self.rect.center = self.pos
+        self.rect = self.image.get_rect(center=self.pos)
 
     def check_alive(self, world):
+        """
+        Verifica si el enemigo está vivo y lo elimina si su salud es 0.
+
+        Parámetros:
+        ----------
+        world : World
+            Instancia del mundo del juego que maneja estadísticas como dinero y enemigos muertos.
+        """
         if self.health <= 0:
             world.killed_enemies += 1
             world.money += c.KILL_REWARD
             self.kill()
 
     def draw_health_bar(self, surface):
-      # Define el ancho y alto de la barra
-      bar_width = self.rect.width * 0.6  # Reduce el ancho de la barra al 60% del ancho del rectángulo
-      bar_height = 5
+        """
+        Dibuja una barra de salud sobre el enemigo.
 
-      # Calcula la proporción de salud
-      health_ratio = max(0, self.health / self.max_health)
+        Parámetros:
+        ----------
+        surface : pygame.Surface
+            Superficie donde se dibuja la barra de salud.
+        """
+        bar_width = self.rect.width * 0.6
+        bar_height = 5
+        health_ratio = max(0, self.health / self.max_health)
 
-      # Coordenadas de la barra
-      bar_x = self.rect.left + (self.rect.width - bar_width) / 2  # Centra la barra encima del enemigo
-      bar_y = self.rect.top - bar_height - 2  # Justo encima del enemigo
+        bar_x = self.rect.left + (self.rect.width - bar_width) / 2
+        bar_y = self.rect.top - bar_height - 2
 
-      # Dibuja el fondo de la barra (rojo)
-      pg.draw.rect(surface, "red", (bar_x, bar_y, bar_width, bar_height))
+        # Barra de fondo (rojo)
+        pg.draw.rect(surface, "red", (bar_x, bar_y, bar_width, bar_height))
 
-      # Dibuja la parte de la barra que representa la salud actual (verde)
-      pg.draw.rect(surface, "green", (bar_x, bar_y, bar_width * health_ratio, bar_height))
+        # Barra de salud actual (verde)
+        pg.draw.rect(surface, "green", (bar_x, bar_y, bar_width * health_ratio, bar_height))

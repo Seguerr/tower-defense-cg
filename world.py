@@ -3,57 +3,90 @@ import random
 import constants as c
 from enemy_data import ENEMY_SPAWN_DATA
 
-class World():
-  def __init__(self, data, map_image):
-    self.level = 1
-    self.game_speed = 1
-    self.health = c.HEALTH
-    self.money = c.MONEY
-    self.tile_map = []
-    self.waypoints = []
-    self.level_data = data
-    self.image = map_image
-    self.enemy_list = []
-    self.spawned_enemies = 0
-    self.killed_enemies = 0
-    self.missed_enemies = 0
+class World:
+    """
+    Clase que representa el mundo del juego, incluyendo el mapa, puntos de control, 
+    y la lógica de los enemigos.
+    """
 
-  def process_data(self):
-    #look through data to extract relevant info
-    for layer in self.level_data["layers"]:
-      if layer["name"] == "tilemap":
-        self.tile_map = layer["data"]
-      elif layer["name"] == "waypoints":
-        for obj in layer["objects"]:
-          waypoint_data = obj["polyline"]
-          self.process_waypoints(waypoint_data)
+    def __init__(self, data, map_image):
+        """
+        Inicializa el mundo con datos de nivel, imagen del mapa y estado del juego.
 
-  def process_waypoints(self, data):
-    #iterate through waypoints to extract individual sets of x and y coordinates
-    for point in data:
-      temp_x = point.get("x")
-      temp_y = point.get("y")
-      self.waypoints.append((temp_x, temp_y))
+        Args:
+            data (dict): Datos del nivel que incluyen información del mapa y waypoints.
+            map_image (Surface): Imagen del mapa que se renderiza en pantalla.
+        """
+        self.level = 1
+        self.game_speed = 1
+        self.health = c.HEALTH
+        self.money = c.MONEY
+        self.tile_map = []
+        self.waypoints = []
+        self.level_data = data
+        self.image = map_image
+        self.enemy_list = []
+        self.spawned_enemies = 0
+        self.killed_enemies = 0
+        self.missed_enemies = 0
 
-  def process_enemies(self):
-    enemies = ENEMY_SPAWN_DATA[self.level - 1]
-    for enemy_type in enemies:
-      enemies_to_spawn = enemies[enemy_type]
-      for enemy in range(enemies_to_spawn):
-        self.enemy_list.append(enemy_type)
-    #now randomize the list to shuffle the enemies
-    random.shuffle(self.enemy_list)
+    def process_data(self):
+        """
+        Procesa los datos del nivel para extraer la información del mapa y los waypoints.
+        """
+        for layer in self.level_data["layers"]:
+            if layer["name"] == "tilemap":
+                self.tile_map = layer["data"]
+            elif layer["name"] == "waypoints":
+                for obj in layer["objects"]:
+                    self.process_waypoints(obj["polyline"])
 
-  def check_level_complete(self):
-    if (self.killed_enemies + self.missed_enemies) == len(self.enemy_list):
-      return True
+    def process_waypoints(self, data):
+        """
+        Procesa los waypoints y extrae las coordenadas X e Y.
 
-  def reset_level(self):
-    #reset enemy variables
-    self.enemy_list = []
-    self.spawned_enemies = 0
-    self.killed_enemies = 0
-    self.missed_enemies = 0
+        Args:
+            data (list): Lista de puntos de un waypoint que contiene coordenadas X e Y.
+        """
+        for point in data:
+            x = point.get("x")
+            y = point.get("y")
+            self.waypoints.append((x, y))
 
-  def draw(self, surface):
-    surface.blit(self.image, (0, 0))
+    def process_enemies(self):
+        """
+        Genera una lista de enemigos basándose en los datos de spawn del nivel actual
+        y mezcla la lista para variar el orden de aparición.
+        """
+        enemies = ENEMY_SPAWN_DATA[self.level - 1]
+        for enemy_type, count in enemies.items():
+            self.enemy_list.extend([enemy_type] * count)
+        random.shuffle(self.enemy_list)
+
+    def check_level_complete(self):
+        """
+        Comprueba si el nivel actual se ha completado, evaluando si todos los enemigos
+        han sido derrotados o han escapado.
+
+        Returns:
+            bool: True si el nivel está completo, False en caso contrario.
+        """
+        return (self.killed_enemies + self.missed_enemies) == len(self.enemy_list)
+
+    def reset_level(self):
+        """
+        Reinicia el estado del nivel, incluyendo las listas de enemigos y contadores.
+        """
+        self.enemy_list.clear()
+        self.spawned_enemies = 0
+        self.killed_enemies = 0
+        self.missed_enemies = 0
+
+    def draw(self, surface):
+        """
+        Dibuja el mapa en la superficie proporcionada.
+
+        Args:
+            surface (Surface): Superficie de Pygame donde se renderiza el mapa.
+        """
+        surface.blit(self.image, (0, 0))
