@@ -9,7 +9,7 @@ class World:
     y la lógica de los enemigos.
     """
 
-    def __init__(self, data, map_image):
+    def __init__(self, data, map_image, level):
         """
         Inicializa el mundo con datos de nivel, imagen del mapa y estado del juego.
 
@@ -17,7 +17,7 @@ class World:
             data (dict): Datos del nivel que incluyen información del mapa y waypoints.
             map_image (Surface): Imagen del mapa que se renderiza en pantalla.
         """
-        self.level = 1
+        self.level = level
         self.game_speed = 1
         self.health = c.HEALTH
         self.money = c.MONEY
@@ -58,6 +58,8 @@ class World:
         Genera una lista de enemigos basándose en los datos de spawn del nivel actual
         y mezcla la lista para variar el orden de aparición.
         """
+        if self.level > c.TOTAL_LEVELS:
+            return
         enemies = ENEMY_SPAWN_DATA[self.level - 1]
         for enemy_type, count in enemies.items():
             self.enemy_list.extend([enemy_type] * count)
