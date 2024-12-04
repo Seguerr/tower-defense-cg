@@ -1,23 +1,14 @@
-https://zintoki.itch.io/ground-shaker
-
-JUAN SEBASTIAN SIERRA GUERRERO
-SANTIAGO MARIN HENAO
-
 ## Descripción del Proyecto
 
 Este proyecto es un juego de Tower Defense desarrollado en Python utilizando la biblioteca Pygame. El objetivo del juego es defender tu base de las oleadas de enemigos colocando torretas estratégicamente en el mapa.
 
 ## Instalación
 
-1. Clona el repositorio:
-   ```bash
-   git clone https://github.com/tu_usuario/StarcoreDefense.git
-   ```
-2. Navega al directorio del proyecto:
+1. Navega al directorio del proyecto:
    ```bash
    cd StarcoreDefense
    ```
-3. Instala las dependencias:
+2. Instala las dependencias:
    ```bash
    pip install -r requirements.txt
    ```
@@ -56,7 +47,3 @@ Este proyecto es un juego de Tower Defense desarrollado en Python utilizando la 
 
 - **Juan Sebastián Sierra Guerrero**
 - **Santiago Marín Henao**
-
-## Licencia
-
-Este proyecto está licenciado bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.

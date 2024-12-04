@@ -7,7 +7,7 @@ SCREEN_WIDTH = TILE_SIZE * COLS  # Ancho total de la pantalla en píxeles
 SCREEN_HEIGHT = TILE_SIZE * ROWS  # Altura total de la pantalla en píxeles
 
 FPS = 60  # Cuadros por segundo para el bucle del juego
-HEALTH = 25  # Salud inicial del jugador
+HEALTH = 1  # Salud inicial del jugador
 MONEY = 700  # Dinero inicial del jugador
 TOTAL_LEVELS = 3  # Total de niveles en el juego
 
